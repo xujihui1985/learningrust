@@ -1,0 +1,11 @@
+[workspace]
+members = [
+  "adder",
+  "vec_demo",
+  "add-one",
+  "lifetime",
+  "error_handling",
+  "enum_demo",
+  "pattern_match",
+  "trait_demo"
+]

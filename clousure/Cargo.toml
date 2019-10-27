@@ -1,0 +1,7 @@
+[package]
+name = "clousure"
+version = "0.1.0"
+authors = ["Sean <xujihui1985@gmail.com>"]
+edition = "2018"
+
+[dependencies]
