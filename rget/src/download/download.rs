@@ -1,20 +1,28 @@
 use std::collections::HashMap;
 
+use crate::download::core;
+use crate::download::core::HttpDownload;
 use clap::ArgMatches;
-use failure::_core::time::Duration;
-use failure::{Fallible, format_err};
+use failure::{format_err, Fallible};
 use reqwest::ClientBuilder;
-use url::Url;
-use std::path::Path;
 use std::fs;
-use std::io::{BufReader, BufRead};
+use std::io::{BufRead, BufReader};
+use std::path::Path;
+use std::time::Duration;
+use url::Url;
 
 type Headers = HashMap<String, String>;
+
+struct DefaultEventHandler {}
+impl core::EventsHandler for DefaultEventHandler {}
 
 pub fn http_download(url: Url, args: &ArgMatches, version: &str) -> Fallible<()> {
     let resume_download = args.is_present("continue");
     let concurrent_download = args.is_present("singlethread");
-    let user_agent = args.value_of("AGENT").unwrap_or(&format!("RGET/{}", version)).to_string();
+    let user_agent = args
+        .value_of("AGENT")
+        .unwrap_or(&format!("RGET/{}", version))
+        .to_string();
     let timeout_str = args.value_of("SECONDS").unwrap_or("30");
     let timeout = timeout_str.parse::<u64>()?;
     let number_of_workers_str = args.value_of("NUM_CONNECTION").unwrap_or("8");
@@ -35,9 +43,40 @@ pub fn http_download(url: Url, args: &ArgMatches, version: &str) -> Fallible<()>
         0u64
     };
 
-    let headers = prep_headers(&fname, resume_download, &user_agent);
+    let headers = prep_headers(&fname, resume_download, &user_agent)?;
 
+    let state_file_exits = Path::new(&format!("{}.st", fname)).exists();
+    let chunk_size = 512_000u64;
 
+    let chunk_offsets = if state_file_exits && resume_download && concurrent_download && cl != 0 {
+        Some(get_resume_chunk_offsets(&fname, cl, chunk_size)?)
+    } else {
+        None
+    };
+
+    let bytes_on_disk = if resume_download {
+        calc_bytes_on_disk(&fname)?
+    } else {
+        None
+    };
+
+    let conf = core::Config {
+        user_agent,
+        resume: resume_download,
+        headers,
+        fname,
+        timeout,
+        concurrent: concurrent_download,
+        max_retries: 100,
+        num_workers,
+        bytes_on_disk,
+        chunk_offsets,
+        chunk_size,
+    };
+
+    let mut client = HttpDownload::new(url, conf)?;
+    let h = DefaultEventHandler {};
+    client.events_hook(h).download()?;
     Ok(())
 }
 
@@ -53,30 +92,32 @@ fn request_headers_from_server(url: &Url, timeout: u64, use_agent: &str) -> Fall
 }
 
 fn gen_filename(url: &Url, fname: Option<&str>, headers: &Headers) -> String {
-    let cd = headers.get("Content-Disposition")
+    let cd = headers
+        .get("Content-Disposition")
         .and_then(|val| {
             if val.contains("filename=") {
                 Some(val)
             } else {
                 None
             }
-        }).and_then(|val| {
-        let y = val.rsplit(';');
-        let x = val
-            .rsplit(';')
-            .nth(0)
-            .unwrap_or("")
-            .rsplit('=')
-            .nth(0)
-            .unwrap_or("")
-            .trim_start_matches('"')
-            .trim_end_matches('"');
-        if !x.is_empty() {
-            Some(x.to_string())
-        } else {
-            None
-        }
-    });
+        })
+        .and_then(|val| {
+            let y = val.rsplit(';');
+            let x = val
+                .rsplit(';')
+                .nth(0)
+                .unwrap_or("")
+                .rsplit('=')
+                .nth(0)
+                .unwrap_or("")
+                .trim_start_matches('"')
+                .trim_end_matches('"');
+            if !x.is_empty() {
+                Some(x.to_string())
+            } else {
+                None
+            }
+        });
     match fname {
         Some(name) => name.to_string(),
         None => match cd {
@@ -89,7 +130,7 @@ fn gen_filename(url: &Url, fname: Option<&str>, headers: &Headers) -> String {
                     "genfrom header".to_string()
                 }
             }
-        }
+        },
     }
 }
 
@@ -104,6 +145,38 @@ fn prep_headers(fname: &str, resume: bool, user_agent: &str) -> Fallible<Headers
     }
     headers.insert(String::from("User-Agent"), user_agent.to_string());
     Ok(headers)
+}
+
+fn get_resume_chunk_offsets(fname: &str, cl: u64, chunk_size: u64) -> Fallible<Vec<(u64, u64)>> {
+    let st_name = format!("{}.st", fname);
+    let input = fs::File::open(st_name)?;
+    let buf = BufReader::new(input);
+    let mut downloaded = vec![];
+    for line in buf.lines() {
+        //        let l = line?.split(":").collect::<Vec<_>>();
+        let l = line?;
+        let l = l.split(":").collect::<Vec<_>>();
+        let n = (l[0].parse::<u64>()?, l[1].parse::<u64>()?);
+        downloaded.push(n);
+    }
+    downloaded.sort_by_key(|a| a.1);
+    let mut chunks = vec![];
+    let mut i = 0u64;
+    for (bc, offset) in downloaded {
+        if i == offset {
+            i = offset + bc;
+        } else {
+            chunks.push((i, offset - 1));
+            i = offset + bc;
+        }
+    }
+
+    while (cl - i) > chunk_size {
+        chunks.push((i, i + chunk_size - 1));
+        i += chunk_size;
+    }
+    chunks.push((i, cl));
+    Ok(chunks)
 }
 
 fn calc_bytes_on_disk(fname: &str) -> Fallible<Option<u64>> {
@@ -124,7 +197,7 @@ fn calc_bytes_on_disk(fname: &str) -> Fallible<Option<u64>> {
     } else {
         match fs::metadata(fname) {
             Ok(meta) => Ok(Some(meta.len())),
-            _ => Ok(None)
+            _ => Ok(None),
         }
     }
 }
