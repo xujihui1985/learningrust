@@ -1,5 +1,5 @@
 use failure::Fallible;
-use reqwest::header::HeaderValue;
+use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::ClientBuilder;
 use reqwest::Method;
 use std::cell::RefCell;
@@ -27,11 +27,12 @@ pub struct Config {
 
 #[allow(unused_variables)]
 pub trait EventsHandler {
-    fn on_headers(&mut self) {}
+    fn on_headers(&mut self, header: &HeaderMap) {}
     fn on_server_supports_resume(&mut self) {}
     fn on_finish(&mut self) {}
-    fn on_content(&mut self, contents: &[u8]) {
+    fn on_content(&mut self, contents: &[u8]) -> Fallible<()> {
         println!("{}", String::from_utf8_lossy(contents));
+        Ok(())
     }
 }
 
@@ -78,7 +79,7 @@ impl HttpDownload {
             .build()?;
         if resp.status().is_success() {
             for hk in &self.hooks {
-                hk.borrow_mut().on_headers();
+                hk.borrow_mut().on_headers(resp.headers());
             }
 
             if support_bytes && self.conf.concurrent {
@@ -86,6 +87,8 @@ impl HttpDownload {
             } else {
                 self.singlethread_download(req)?;
             }
+        } else {
+            println!("{}, {}", self.url.as_str(), resp.status().as_str());
         }
 
         Ok(())

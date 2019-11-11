@@ -1,20 +1,76 @@
 use std::collections::HashMap;
 
+use crate::download::bar::create_progress_bar;
 use crate::download::core;
 use crate::download::core::HttpDownload;
 use clap::ArgMatches;
+use console::style;
 use failure::{format_err, Fallible};
+use indicatif::{HumanBytes, ProgressBar};
+use reqwest::header::HeaderMap;
 use reqwest::ClientBuilder;
 use std::fs;
-use std::io::{BufRead, BufReader};
+use std::fs::OpenOptions;
+use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::Path;
 use std::time::Duration;
 use url::Url;
 
 type Headers = HashMap<String, String>;
 
-struct DefaultEventHandler {}
-impl core::EventsHandler for DefaultEventHandler {}
+struct DefaultEventHandler {
+    prog_bar: Option<ProgressBar>,
+    fname: String,
+    file: BufWriter<fs::File>,
+}
+
+fn get_file_handle(fname: &str) -> std::io::Result<fs::File> {
+    OpenOptions::new().write(true).create(true).open(fname)
+}
+
+impl DefaultEventHandler {
+    pub fn new(fname: &str) -> Fallible<DefaultEventHandler> {
+        Ok(DefaultEventHandler {
+            prog_bar: None,
+            fname: fname.to_string(),
+            file: BufWriter::new(get_file_handle(fname)?),
+        })
+    }
+
+    fn create_prog_bar(&mut self, length: Option<u64>) {
+        if let Some(len) = length {
+            let exact = style(len).green();
+            let human_readable = style(format!("{}", HumanBytes(len))).red();
+            println!("Length: {} ({})", exact, human_readable);
+        } else {
+            println!("Length: {}", style("unknown").red());
+        }
+
+        self.prog_bar = Some(create_progress_bar(&self.fname, length));
+    }
+}
+
+impl core::EventsHandler for DefaultEventHandler {
+    fn on_headers(&mut self, header: &HeaderMap) {
+        match header.get("Content-Type") {
+            Some(ct) => println!("Type: {}", style(ct.to_str().unwrap()).green()),
+            None => println!("Type: unknown"),
+        }
+        match header.get("Content-Length") {
+            Some(cl) => self.create_prog_bar(cl.to_str().unwrap().parse::<u64>().ok()),
+            None => println!("{}", style("content-length is empty").red()),
+        }
+    }
+
+    fn on_content(&mut self, content: &[u8]) -> Fallible<()> {
+        let byte_count = content.len() as u64;
+        self.file.write_all(content)?;
+        if let Some(b) = &self.prog_bar {
+            b.inc(byte_count);
+        }
+        Ok(())
+    }
+}
 
 pub fn http_download(url: Url, args: &ArgMatches, version: &str) -> Fallible<()> {
     let resume_download = args.is_present("continue");
@@ -64,7 +120,7 @@ pub fn http_download(url: Url, args: &ArgMatches, version: &str) -> Fallible<()>
         user_agent,
         resume: resume_download,
         headers,
-        fname,
+        fname: fname.clone(),
         timeout,
         concurrent: concurrent_download,
         max_retries: 100,
@@ -75,7 +131,7 @@ pub fn http_download(url: Url, args: &ArgMatches, version: &str) -> Fallible<()>
     };
 
     let mut client = HttpDownload::new(url, conf)?;
-    let h = DefaultEventHandler {};
+    let h = DefaultEventHandler::new(&fname)?;
     client.events_hook(h).download()?;
     Ok(())
 }
@@ -127,7 +183,7 @@ fn gen_filename(url: &Url, fname: Option<&str>, headers: &Headers) -> String {
                 if name.is_empty() {
                     "index.html".to_string()
                 } else {
-                    "genfrom header".to_string()
+                    name.to_string()
                 }
             }
         },
