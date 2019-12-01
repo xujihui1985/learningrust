@@ -4,6 +4,7 @@ pub struct AveragedCollection {
 }
 
 impl AveragedCollection {
+
     pub fn add(&mut self, value: i32) {
         self.list.push(value);
         self.update_average();

@@ -12,6 +12,7 @@ use std::io::{BufReader, BufRead};
 type Headers = HashMap<String, String>;
 
 pub fn http_download(url: Url, args: &ArgMatches, version: &str) -> Fallible<()> {
+
     let resume_download = args.is_present("continue");
     let concurrent_download = args.is_present("singlethread");
     let user_agent = args.value_of("AGENT").unwrap_or(&format!("RGET/{}", version)).to_string();
@@ -36,7 +37,6 @@ pub fn http_download(url: Url, args: &ArgMatches, version: &str) -> Fallible<()>
     };
 
     let headers = prep_headers(&fname, resume_download, &user_agent);
-
 
     Ok(())
 }
