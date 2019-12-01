@@ -1,7 +1,4 @@
-use clap::{
-    App,
-    Arg,
-};
+use clap::{App, Arg};
 use indicatif::{ProgressBar, ProgressStyle};
 use url::{ParseError, Url};
 
@@ -12,28 +9,30 @@ fn main() {
         .version("0.1.0")
         .author("Sean")
         .about("wget written in rust")
-        .arg(Arg::with_name("URL")
-            .required(true)
-            .takes_value(true)
-            .index(1)
-            .help("url to download"))
+        .arg(
+            Arg::with_name("URL")
+                .required(true)
+                .takes_value(true)
+                .index(1)
+                .help("url to download"),
+        )
         .get_matches();
 
     let url = matches.value_of("URL").unwrap();
     let u = Url::parse(url).unwrap();
-//    println!("URL is {}", url);
-    download::http_download(u, &matches, "0.1.0");
+    //    println!("URL is {}", url);
+    download::http_download(u, &matches, "0.1.0").unwrap_or_else(|e| {
+        eprintln!("failed to download {}", e);
+    })
 }
 
 fn create_progress_bar(quite_mode: bool, msg: &str, length: Option<u64>) -> ProgressBar {
     let bar = match quite_mode {
         true => ProgressBar::hidden(),
-        false => {
-            match length {
-                Some(len) => ProgressBar::new(len),
-                None => ProgressBar::new_spinner(),
-            }
-        }
+        false => match length {
+            Some(len) => ProgressBar::new(len),
+            None => ProgressBar::new_spinner(),
+        },
     };
     bar.set_message(msg);
     match length.is_some() {
@@ -57,4 +56,3 @@ fn parse_url(u: &str) -> Result<url::Url, url::ParseError> {
         Err(error) => Err(error),
     }
 }
-
