@@ -1,4 +1,11 @@
 use std::collections::HashMap;
+use std::fmt::Display;
+
+fn show_all(v: Vec<&dyn Display>) {
+    for item in v {
+        println!("{}", item);
+    }
+}
 
 pub fn balanced<T>(input: T) -> bool
     where T: Into<String> {

@@ -4,4 +4,12 @@ version = "0.1.0"
 authors = ["Sean <xujihui1985@gmail.com>"]
 edition = "2018"
 
+[lib]
+name = "mylib"
+path = "src/lib.rs"
+
+[[bin]]
+name = "mybin"
+path = "src/main.rs"
+
 [dependencies]

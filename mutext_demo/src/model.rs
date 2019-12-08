@@ -1,6 +1,6 @@
 pub struct AveragedCollection {
-    list: Vec<i32>,
-    average: f64,
+    pub list: Vec<i32>,
+    pub average: f64,
 }
 
 impl AveragedCollection {
