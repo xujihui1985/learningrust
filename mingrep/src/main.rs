@@ -1,4 +1,3 @@
-extern crate mingrep;
 use std::env;
 use std::process;
 

@@ -73,6 +73,7 @@ impl core::EventsHandler for DefaultEventHandler {
 }
 
 pub fn http_download(url: Url, args: &ArgMatches, version: &str) -> Fallible<()> {
+
     let resume_download = args.is_present("continue");
     let concurrent_download = args.is_present("singlethread");
     let user_agent = args

@@ -3,6 +3,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 static TEMPLATE: &'static str =
     "{msg} {spinner:.green} {percent}% [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} eta: {eta}";
 
+
 pub fn create_progress_bar(msg: &str, length: Option<u64>) -> ProgressBar {
     let progbar = match length {
         Some(l) => ProgressBar::new(l),

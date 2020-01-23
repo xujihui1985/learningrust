@@ -15,6 +15,8 @@ fn main() {
     let res = shoes_in_my_size(shoes, 10);
     println!("res {:?}", res);
 
+    let res = f2()(12);
+    println!("res is {}", res);
 }
 
 #[derive(Debug)]
@@ -28,3 +30,9 @@ fn shoes_in_my_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
         .filter(|s| s.size == shoe_size)
         .collect()
 }
+
+fn f2() -> fn(i32) -> i32 {
+    let f = |x| {x + 1};
+    f
+}
+
