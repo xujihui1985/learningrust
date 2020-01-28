@@ -1,3 +1,4 @@
+mod gbp;
 
 fn announce<'a, T>(value: &'a T) 
     where T: std::fmt::Display {

@@ -1,4 +1,5 @@
 use std::iter::{Peekable, repeat, once};
+mod stepper;
 
 fn main() {
     let text = "hello \n world\n bbb\n ccccccc".to_string();

@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::Display;
+mod generic_trait;
+mod error_handling;
 
 fn show_all(v: Vec<&dyn Display>) {
     for item in v {

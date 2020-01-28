@@ -1,6 +1,7 @@
 use std::io::prelude::*;
 use std::fs::File;
 use chrono::*;
+mod file_io;
 
 fn main() {
     let mut f = File::create("hello.txt").unwrap();
@@ -11,5 +12,7 @@ fn main() {
         Err(e) => println!("failed to write file {:?}", e),
         _ => println!("success")
     }
+
+    file_io::create_file().unwrap();
 
 }
