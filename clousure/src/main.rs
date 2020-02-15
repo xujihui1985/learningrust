@@ -1,3 +1,5 @@
+mod capture;
+
 fn main() {
     let x = vec![1,2,3];
     let equal_to_x = move |z: Vec<u32>| z == x;
@@ -17,7 +19,10 @@ fn main() {
 
     let res = f2()(12);
     println!("res is {}", res);
+
 }
+
+
 
 #[derive(Debug)]
 struct Shoe {
