@@ -25,6 +25,12 @@ impl From<ReqwestError> for Error {
     }
 }
 
+impl From<IOError> for Error {
+    fn from(e: IOError) -> Self {
+        Error::IO(e)
+    }
+}
+
 impl From<HttpInvalidHeaderValueError> for Error {
     fn from(e: HttpInvalidHeaderValueError) -> Self {
         Error::Http(HttpError::HttpInvalidHeaderValue(e))

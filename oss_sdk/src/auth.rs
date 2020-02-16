@@ -24,7 +24,7 @@ impl Auth for OSS {
         verb: &str,
         bucket: &str,
         object: &str,
-        oss_resources: &str,
+        sub_resources: &str,
         headers: &HeaderMap<HeaderValue>,
     ) -> String {
         let date = headers
@@ -54,7 +54,7 @@ impl Auth for OSS {
                 v.to_owned().to_str().unwrap_or("")
             );
         }
-        let oss_resource_str = get_oss_resource_str(bucket, object, oss_resources);
+        let oss_resource_str = get_oss_resource_str(bucket, object, sub_resources);
         let sign_str = format!(
             "{}\n{}\n{}\n{}\n{}{}",
             verb, content_md5, content_type, date, oss_headers_str, oss_resource_str
