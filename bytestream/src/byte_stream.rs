@@ -102,9 +102,14 @@ mod tests {
         let s = stream::once(async move { Ok(Bytes::from(vec![1, 2, 3, 4])) });
         let bs = ByteStream::new(s);
         let mut blocking_read = bs.into_blocking_read();
-        let mut buf = [0u8; 5];
-        assert_eq!(blocking_read.read(&mut buf).unwrap(), 4);
-        let expect:[u8; 4] = [1,2,3,4];
-        assert_eq!(&buf[..4], expect);
+        let mut buf = [0u8; 2];
+        assert_eq!(blocking_read.read(&mut buf).unwrap(), 2);
+        let expect:[u8; 2] = [1,2];
+        assert_eq!(&buf[..2], expect);
+
+        let mut buf = [0u8; 1];
+        assert_eq!(blocking_read.read(&mut buf).unwrap(), 1);
+        let expect:[u8; 1] = [3];
+        assert_eq!(&buf[..1], expect);
     }
 }
