@@ -7,9 +7,9 @@ mod oss;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    // let endpoint = "";
-    // let access_key_id = "";
-    // let access_key_secret = "";
+    let endpoint = "";
+    let access_key_id = "";
+    let access_key_secret = "";
     let oss = oss::OSS::new(endpoint, access_key_id, access_key_secret);
     println!("call list bucket");
     let buckets = oss.list_buckets().await?;
