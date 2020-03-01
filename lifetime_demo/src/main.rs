@@ -1,4 +1,5 @@
 mod gbp;
+mod lifetime;
 
 fn announce<'a, T>(value: &'a T) 
     where T: std::fmt::Display {
@@ -84,5 +85,8 @@ fn main() {
     steal_a_var(c);
 
     let d = &mut b;
+
+    
+    lifetime::lifetime_test();
 }
 
