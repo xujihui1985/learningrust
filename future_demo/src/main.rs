@@ -92,6 +92,7 @@ fn use_waker(w: &Waker) {
 
 fn main() {
 //    use_waker(&Waker);
+//
     let my_future = MyFuture::default();
     let result = run(my_future);
     println!("output {}", result);
