@@ -76,7 +76,7 @@ impl Connection {
                 up: false,
             },
             ip: etherparse::Ipv4Header::new(
-                0
+                0,
                 64,
                 etherparse::IpTrafficClass::Tcp,
                 [
@@ -122,18 +122,50 @@ impl Connection {
         tcph: etherparse::TcpHeaderSlice<'a>, 
         data: &'a [u8],
     ) -> io::Result<()> {
+        // check sequence number is valid
         let ackn = tcph.acknowledgment_number();
+        if !is_between_wrapped(self.send.una, ackn, self.send.nxt.wrapping_add(1)) {
+            return Ok(());
+        }
         if self.send.una < ackn {
             if self.send.nxt >= self.send.una && self.send.nxt < ackn {
                 return Ok(());
             }
+        } else {
+            if self.send.nxt >= ackn && self.send.nxt < self.send.una {
+            } else {
+                return Ok(());
+            }
+        }
+        // valid segment check
+        // 
+        let seqn = tcph.sequence_number();
+        let wend = self.recv.nxt.wrapping_add(self.recv.wnd as u32);
+        if data.len() == 0 && !tcph.syc() && !tcph.fin() {
+            // zero length segment has different rules 
+            if self.recv.wnd == 0 {
+                if seqn != self.recv.nxt {
+                    return Ok(());
+                }
+            } else if !is_between_wrapped(self.recv.nxt.wrapping_sub(1), seqn, wend) {
+                return Ok(());
+            }
+        } else {
+            if self.recv.wnd == 0 {
+                return Ok(());
+            } else if !is_between_wrapped(self.recv.nxt.wrapping_sub(1), seqn, self.recv.nxt.wrapping_add(self.recv.wnd as u32)) 
+                    && !is_between_wrapped(self.recv.nxt.wrapping_sub(1), seqn + data.len() as u32 - 1, self.recv.nxt.wrapping_add(self.recv.wnd as u32)){
+                    return Ok(());
+                }
+            }
         }
 
-        if !(self.send.una < tcph.acknowledgment_number() && tcph.acknowledgment_number() <= self.send.nxt) {
-            return Ok(());
-        }
         match self.state {
             State::SynRcvd => {
+                if !tcph.ack() {
+                    return Ok(());
+                }
+                self.state = Estab;
             },
             State::Estab => {
 
@@ -142,3 +174,29 @@ impl Connection {
         Ok(())
     }
 } 
+
+fn is_between_wrapped(start: u32, x: u32, end: u32) -> bool {
+    use std::cmp::{Ord, Ordering};
+    match start.cmp(x) {
+        Ordering::Equal => false,
+        Ordering::Less => {
+            // |------------S-------X--------------------------|
+            //
+            // |------------S-------X-------E------------------|
+            // |--------E---S-------X--------------------------|
+            //
+            //
+            if end >= start && end <= x {
+                return false;
+            }
+        },
+        Ordering::Greater => {
+            if end >= x && end < start {
+            } else {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
