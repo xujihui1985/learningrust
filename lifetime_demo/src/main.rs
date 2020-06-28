@@ -28,6 +28,11 @@ fn parse_context(context: Context) -> Result<(), &str> {
     p.parse()
 }
 
+static LIST:[i32;4] = [1,2,3,4];
+fn return_first_two_with_static() -> &'static [i32] {
+    &LIST[0..2]
+}
+
 // struct Object {
 //     number: u32
 // }

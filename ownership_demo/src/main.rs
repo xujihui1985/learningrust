@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+use std::io;
+
+
 
 fn sum(v: &Vec<i32>) -> i32 {
     let mut sum = 0;
@@ -22,8 +26,7 @@ fn mut_parm(mut x: i32) {
 }
 
 fn main() {
-
-    let mut v = vec![1,2,3,4,5];
+    let mut v = vec![1, 2, 3, 4, 5];
     cap_values_owned(4, &mut v);
     println!("result is {:?}", v);
     let x = 1;
@@ -31,16 +34,29 @@ fn main() {
     // let res = sum(&v);
     // println!("sum of v {:?} is {}", v, res);
     //
-    let mut values = vec![1,2,3];
+    let mut values = vec![1, 2, 3];
     let a = &values;
     println!("{:?}", a);
     values[0] = 4;
 
-    let a = vec![1,2,3,4,5];
+    let a = vec![1, 2, 3, 4, 5];
     let sa = &a[0..2];
 
     let b = String::from("hello");
     let sb = &b[0..2];
     println!("sb is {}", sb);
+    counting_word();
+}
 
+fn counting_word() {
+    let mut counts = HashMap::new();
+    loop {
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).expect("failed to read");
+        for word in input.split_whitespace() {
+            let count = counts.entry(word).or_insert(0);
+            *count += 1;
+        }
+        println!("counts = {:?}", counts);
+    }
 }
