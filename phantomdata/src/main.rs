@@ -1,4 +1,7 @@
 use libc;
+
+// https://dev.to/jeikabu/rust-lifetimes-for-safer-ffi-3jnf
+
 fn main() {
     //    let foo_auth = Authenticator::<Foo>::new();
     //   let res  = foo_auth.auth(1);
