@@ -1,0 +1,14 @@
+language = "C"
+header = "// header of license"
+braces = "SameLine"
+line_length = 80
+tab_width = 4
+documentation_style = "auto"
+line_endings = "LF" # also "CR", "CRLF", "Native"
+
+
+[export]
+prefix = "capi_"
+
+[enum]
+rename_variants = "SnakeCase"
