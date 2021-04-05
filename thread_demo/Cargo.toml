@@ -4,4 +4,20 @@ version = "0.1.0"
 authors = ["Sean <xujihui1985@gmail.com>"]
 edition = "2018"
 
+[[bin]]
+name = "condvar"
+path = "src/condvar.rs"
+
+[[bin]]
+name = "rocket"
+path = "src/rocket.rs"
+
+[[bin]]
+name = "atomic"
+path = "src/atomic.rs"
+
+[[bin]]
+name = "mutex"
+path = "src/mutex.rs"
+
 [dependencies]
