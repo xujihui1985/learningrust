@@ -1,7 +1,15 @@
 use std::iter::{Peekable, repeat, once};
 mod stepper;
+mod flatten;
 
 fn main() {
+    let res = (1..10).scan(10, |s, x| {
+        *s = *s + x;
+        println!("{} {}", *s, x);
+        Some(*s)
+    }).collect::<Vec<_>>();
+    println!("{:?}", res);
+
     let text = "hello \n world\n bbb\n ccccccc".to_string();
     let v: Vec<&str> = text.lines()
         .map(str::trim)

@@ -1,7 +1,16 @@
+struct Person<'a> {
+    name: &'a str,
+}
+
 #[cfg(test)]
 mod tests {
+    use super::*;
     #[test]
     fn it_works() {
-        assert_eq!(2 + 2, 4);
+        let name = "hello";
+        let b = &name;
+        let p = Person {
+            name: b,
+        };
     }
 }

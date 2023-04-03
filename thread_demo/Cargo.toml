@@ -20,4 +20,8 @@ path = "src/atomic.rs"
 name = "mutex"
 path = "src/mutex.rs"
 
+[[bin]]
+name = "threadlocal"
+path = "src/threadlocal.rs"
+
 [dependencies]

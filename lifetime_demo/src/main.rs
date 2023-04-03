@@ -93,5 +93,62 @@ fn main() {
 
     
     lifetime::lifetime_test();
+
+    let mut my_vec: Vec<&i32> = vec![];
+    let v = vec![1,2,3];
+    for i in &v {
+        insert_value(&mut my_vec, i);
+    }
+    
+    
+    let text = String::from("Twas brillig, and the slithy toves // Did gyre and gimble in the wabe: // All mimsy were the borogoves, // And the mome raths outgrabe. ");
+    let mut word_iterator = WordIterator::new(&text);
+    let a = word_iterator.next_word();
+    let b = word_iterator.next_word();
+    assert_eq!(a, Some("aaa"));
+    //assert_eq!(word_iterator.next_word(), Some("Twas"));
+    //assert_eq!(word_iterator.next_word(), Some("brillig,"));
 }
+
+fn insert_value<'vec, 'content>(my_vec: &'vec mut Vec<&'content i32>, value: &'content i32) {
+    my_vec.push(value)
+}
+
+#[derive(Debug)]
+struct WordIterator<'s> {
+    position: usize,
+    string: &'s str
+}
+
+impl<'lifetime> WordIterator<'lifetime> {
+    /// Creates a new WordIterator based on a string.
+    fn new(string: &'lifetime str) -> WordIterator<'lifetime> {
+        WordIterator {
+            position: 0,
+            string
+        }
+    }
+    
+    /// Gives the next word. `None` if there aren't any words left.
+    fn next_word(&mut self) -> Option<&'lifetime str> {
+        let start_of_word = &self.string[self.position..];
+        let index_of_next_space = start_of_word.find(' ').unwrap_or(start_of_word.len());
+        if start_of_word.len() != 0 {
+            self.position += index_of_next_space + 1;
+            Some(&start_of_word[..index_of_next_space]) 
+        } else {
+            None
+        }
+    }
+
+}
+
+struct StrWrap<'a>(&'a str);
+
+fn make_wrapper(string: &str) -> StrWrap {
+    StrWrap(string)
+}
+
+struct Ref<'a, T>(&'a T);
+
 

@@ -40,15 +40,15 @@ fn main() {
         move || {
             let (mtx, cnd) = &*mutcond;
             loop {
-              let mut guard = mtx.lock().unwrap();
-              guard.1 = (guard.1 as u16).wrapping_add(1);
-              guard.0 = true;
-              cnd.notify_all();
+                let mut guard = mtx.lock().unwrap();
+                guard.1 = (guard.1 as u16).wrapping_add(1);
+                guard.0 = true;
+                cnd.notify_all();
             }
         }
     });
 
     for jh in reader_jhs {
-      println!("{:?}", jh.join().unwrap());
+        println!("{:?}", jh.join().unwrap());
     }
 }

@@ -1,12 +1,15 @@
-mod pin;
+// mod pin;
+use pin_project::pin_project;
 use std::future::Future;
+use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 use std::task::Waker;
 use std::thread;
 use std::time::Duration;
 
 use futures::task::{Context, Poll};
-use tokio::macros::support::Pin;
+use futures::FutureExt;
+// use tokio::macros::support::Pin;
 
 // it is same as future::Future
 
@@ -56,10 +59,40 @@ impl Future for TimerFuture {
     }
 }
 
-#[tokio::main]
-async fn main() {
-    println!("should sleeping for 1 second");
-    let t = TimerFuture::new(Duration::from_millis(1000));
-    t.await;
-    hello_world().await;
+#[pin_project]
+struct MySleep {
+    #[pin]
+    sleep: tokio::time::Sleep,
+}
+
+struct World;
+
+struct Hello<'pin>
+where
+    World: 'pin,
+{
+    hello: &'pin str,
+}
+
+impl Future for MySleep {
+    type Output = ();
+
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        let mut this = self.project();
+        this.sleep.as_mut().poll(cx)
+    }
+}
+
+fn main() {
+    // let mut rt = tokio::runtime::Builder::new().enable_all().build().unwrap();
+    // rt.block_on(TimerFuture::new(Duration::from_millis(2000)));
+
+    let mut s = String::from("hello");
+    // tokio::pin!(s);
+    let pin_s = std::pin::Pin::new(&mut s);
+    pin_s.get_mut();
+
+    let h = Hello{
+        hello: "aaa"
+    };
 }

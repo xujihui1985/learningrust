@@ -20,6 +20,13 @@ fn main() {
     let res = f2()(12);
     println!("res is {}", res);
 
+    fn calc(x: i32, y: i32, func: Box<dyn Fn(i32, i32) -> i32 + '_>) -> i32 {
+        let res = func(x, y);
+        res
+    }
+
+    let c = 1;
+    let a = calc(1,2, Box::new(|x,y| x+y+c));
 }
 
 
@@ -41,3 +48,39 @@ fn f2() -> fn(i32) -> i32 {
     f
 }
 
+struct Hello {
+
+}
+
+impl Hello {
+    fn display(&self) -> usize {
+        let mut aaa: usize = 1;
+        self.walk(|a: u32| { aaa += a as usize;});
+        aaa
+    }
+
+    fn walk<T>(&self, mut f: T) where T:FnMut(u32) {
+        let mut a:Vec<u32> = vec![1,2,3];
+        for i in (0..10){
+            let b = a.get_mut(i).unwrap();
+            f(*b)
+        }
+    }
+}
+
+fn add(a: &mut Vec<u32>) {
+
+}
+
+struct Rec {
+    num: i32,
+}
+
+fn modify(data: &mut Vec<Rec>) {
+    let mut ret = Vec::<&mut Rec>::new();
+    for j in 0 .. 10 { 
+        let mut rec = data.get_mut(j).unwrap(); //<- error is here
+        ret.push(rec);
+    }
+    //ret
+}

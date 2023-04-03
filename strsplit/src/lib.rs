@@ -2,14 +2,14 @@
 #![warn(missing_debug_implementations, rust_2018_idioms, missing_docs)]
 
 #[derive(Debug)]
-pub struct StrSplit<'a> {
+pub struct StrSplit<'a, 'b> {
     remainder: &'a str,
-    delimiter: &'a str,
+    delimiter: &'b str,
 }
 
-impl<'a> StrSplit<'a> {
+impl<'a, 'b> StrSplit<'a, 'b> {
     // aaaa
-    pub fn new(heystack: &'a str, delimiter: &'a str) -> Self {
+    pub fn new(heystack: &'a str, delimiter: &'b str) -> Self {
         Self {
             remainder: heystack,
             delimiter,
@@ -17,7 +17,7 @@ impl<'a> StrSplit<'a> {
     }
 }
 
-impl<'a> Iterator for StrSplit<'a> {
+impl<'a,'b> Iterator for StrSplit<'a,'b> {
     type Item = &'a str;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -34,6 +34,11 @@ impl<'a> Iterator for StrSplit<'a> {
         }
     }
 
+}
+
+fn until_char(s: &str, c: char) -> Option<&str> {
+    let delimter = format!("{}", c);
+    StrSplit::new(s, &delimter).next()
 }
 
 #[cfg(test)]

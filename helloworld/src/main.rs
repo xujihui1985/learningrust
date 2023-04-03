@@ -1,5 +1,3 @@
-use std::env;
-
 fn serve_order() {
     println!("serve order");
 }
@@ -11,10 +9,10 @@ mod back_of_house {
     }
 }
 
-struct test_struct {
+struct TestStruct {
 }
 
-impl test_struct {
+impl TestStruct {
     fn return_string(&self) -> String {
         String::from("hello")
     }
@@ -31,13 +29,15 @@ fn main() {
 }
 
 // 
-fn temporary_value_is_freed() {
-    let t = test_struct{};
+pub fn temporary_value_is_freed() {
+    let t = TestStruct{};
     //let hello = t.return_string().as_str();
-    let hello = {
-            let __temp = t.return_string();
-                __temp.as_str()
-    };
+    let hello = t.return_string();
+    let hello = hello.as_str();
+    //let hello = {
+        //let __temp = t.return_string();
+        //__temp.as_str()
+    //};
     println!("{}", hello);
 }
 
