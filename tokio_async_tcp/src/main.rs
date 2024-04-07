@@ -6,34 +6,41 @@ type MyResult<T> = Result<T, Box<dyn Error>>;
 
 #[tokio::main]
 async fn main() -> MyResult<()> {
-    let bind = ":::1026";
-    let mut listener = TcpListener::bind(&bind).await?;
-
-    loop {
-        let (socket, _) = listener.accept().await?;
+    for i in 1..20 {
         tokio::spawn(async move {
-            let _ = handle_connection(socket).await;
+            println!("hello {}", i);
         });
     }
-}
-
-async fn handle_connection(mut socket: TcpStream) -> MyResult<()> {
-    let remote_ip = socket.peer_addr()?.ip();
-    println!("remote_ip is {}", remote_ip);
-
-
-    loop {
-        let mut buf: [u8; 1024] = [0; 1024];
-        let n = socket.read(&mut buf).await?;
-        if n == 0 {
-            break;
-        }
-        let received = String::from_utf8_lossy(&buf[0..n]);
-        println!("received {}", received);
-    }
-
+    std::thread::sleep(std::time::Duration::from_millis(1000));
     Ok(())
+    //let bind = ":::1026";
+    //let mut listener = TcpListener::bind(&bind).await?;
+
+    //loop {
+        //let (socket, _) = listener.accept().await?;
+        //tokio::spawn(async move {
+            //let _ = handle_connection(socket).await;
+        //});
+    //}
 }
+
+//async fn handle_connection(mut socket: TcpStream) -> MyResult<()> {
+    //let remote_ip = socket.peer_addr()?.ip();
+    //println!("remote_ip is {}", remote_ip);
+
+
+    //loop {
+        //let mut buf: [u8; 1024] = [0; 1024];
+        //let n = socket.read(&mut buf).await?;
+        //if n == 0 {
+            //break;
+        //}
+        //let received = String::from_utf8_lossy(&buf[0..n]);
+        //println!("received {}", received);
+    //}
+
+    //Ok(())
+//}
 
 //async fn handle_connection_by_lines(mut socket: TcpStream) -> MyResult<()> {
     //let remote_ip = socket.peer_addr()?.ip();

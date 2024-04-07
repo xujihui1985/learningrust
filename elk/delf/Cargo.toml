@@ -6,6 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+derive-try-from-primitive = "1.0.0"
 derive_more = "0.99.17"
 enumflags2 = {version = "0.7.6", features=["serde"]}
 nom = "5"
+thiserror = "1"

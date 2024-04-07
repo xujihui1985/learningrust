@@ -1,0 +1,4 @@
+{
+    "rust-analyzer.updates.askBeforeDownload": false,
+    "rust-analyzer.server.path": "~/bin/rust-analyzer-x86_64-apple-darwin"
+}

@@ -94,18 +94,20 @@ fn main() {
     
     lifetime::lifetime_test();
 
-    let mut my_vec: Vec<&i32> = vec![];
-    let v = vec![1,2,3];
-    for i in &v {
-        insert_value(&mut my_vec, i);
-    }
+    test_loan();
+
+    //let mut my_vec: Vec<&i32> = vec![];
+    //let v = vec![1,2,3];
+    //for i in &v {
+        //insert_value(&mut my_vec, i);
+    //}
     
     
-    let text = String::from("Twas brillig, and the slithy toves // Did gyre and gimble in the wabe: // All mimsy were the borogoves, // And the mome raths outgrabe. ");
-    let mut word_iterator = WordIterator::new(&text);
-    let a = word_iterator.next_word();
-    let b = word_iterator.next_word();
-    assert_eq!(a, Some("aaa"));
+    //let text = String::from("Twas brillig, and the slithy toves // Did gyre and gimble in the wabe: // All mimsy were the borogoves, // And the mome raths outgrabe. ");
+    //let mut word_iterator = WordIterator::new(&text);
+    //let a = word_iterator.next_word();
+    //let b = word_iterator.next_word();
+    //assert_eq!(a, Some("aaa"));
     //assert_eq!(word_iterator.next_word(), Some("Twas"));
     //assert_eq!(word_iterator.next_word(), Some("brillig,"));
 }
@@ -150,5 +152,11 @@ fn make_wrapper(string: &str) -> StrWrap {
 }
 
 struct Ref<'a, T>(&'a T);
+
+fn test_loan() {
+    let mut x = 123;
+    let y = &x;
+    x += 1;
+}
 
 

@@ -7,7 +7,7 @@ use axum::handler::Handler;
 use axum::http::{HeaderMap, Request, StatusCode, Uri, Method};
 use axum::middleware::Next;
 use axum::response::{Html, IntoResponse, Response};
-use axum::routing::get_service;
+use axum::routing::{get_service, Route};
 use axum::{http, middleware, routing::get, Extension, Json, Router};
 use ctx::Ctx;
 use model::ModelController;
@@ -50,6 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .fallback_service(routes_static());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+    let into_mk_svc = routes_all.into_make_service();
     axum::Server::bind(&addr)
         .serve(routes_all.into_make_service())
         .await?;

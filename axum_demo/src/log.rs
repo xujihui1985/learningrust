@@ -35,8 +35,5 @@ pub async fn log_request(
         .ok()
         .and_then(|mut v| v.get_mut("data").map(|v| v.take()));
 
-    let log_line = RequestLogLine {
-        ..
-    };
     todo!()
 }

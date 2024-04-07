@@ -8,6 +8,7 @@ mod skip_list;
 mod dynamic_array;
 mod binary_tree;
 mod finddup;
+mod graph;
 
 fn do_something(i: u32) {}
 

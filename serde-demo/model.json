@@ -1,0 +1,4 @@
+{
+    "@myCustomAnnotation": "foo",
+    "type": "string"
+}

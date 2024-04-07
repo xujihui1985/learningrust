@@ -12,6 +12,25 @@ path = "./src/hash_ref.rs"
 name = "diff"
 path = "./src/diff.rs"
 
+[[bin]]
+name = "tree"
+path = "./src/tree.rs"
+
+[[bin]]
+name = "slice"
+path = "./src/slice.rs"
+
+[[bin]]
+name = "returnimpl"
+path = "./src/returnimpl.rs"
+
+[[bin]]
+name = "temp"
+path = "./src/temp.rs"
+[[bin]]
+name = "lifetime_hack"
+path = "./src/lifetime_hack.rs"
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
