@@ -90,10 +90,19 @@ fn use_waker(w: &Waker) {
     w.hello();
 }
 
+
 fn main() {
 //    use_waker(&Waker);
 //
     let my_future = MyFuture::default();
     let result = run(my_future);
     println!("output {}", result);
+    let async_block = async {
+        if let Some(r) = None::<Result<_, std::convert::Infallible>> {
+           return r;
+        }
+
+        let x: u64 = 1337;
+        Ok(x)
+    };
 }

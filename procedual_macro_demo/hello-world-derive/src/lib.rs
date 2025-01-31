@@ -18,6 +18,12 @@ fn impl_hello_world(ast: &syn::DeriveInput) -> TokenStream {
         println!("hello {}", stringify!(#name));
       }
     }
+
+    impl #name {
+      fn hello_world2(&self) {
+        println!("hello2 {}", stringify!(#name));
+      }
+    }
   };
   expand.into()
 }

@@ -11,4 +11,5 @@ struct World;
 fn main() {
     let w = World{};
     w.hello_world();
+    w.hello_world2();
 }

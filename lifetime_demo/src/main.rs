@@ -1,3 +1,7 @@
+use std::{cell::RefCell, borrow::Borrow, mem::{self, ManuallyDrop}};
+
+use rayon::prelude::{IntoParallelIterator, IndexedParallelIterator, ParallelIterator};
+
 mod gbp;
 mod lifetime;
 
@@ -50,6 +54,31 @@ struct RefObject<'x>(&'x u32);
 
 fn steal_a_var(o: RefObject) {
     println!("{}", o.0);
+}
+
+struct Foo {
+    map: std::collections::HashMap<String, String>
+}
+
+impl Foo {
+    fn new() -> Self {
+        let mut map = std::collections::HashMap::new();
+        map.insert("bar".to_string(), "bar".to_string());
+        Foo {
+            map: map
+        }
+    }
+
+    fn eval(&mut self) {
+        let bar = {
+            let refbar = self.map.get("bar"); 
+            refbar.expect("xxx").clone()
+        };
+        self.eval();
+
+        println!("{}", bar);
+
+    }
 }
 
 fn main() {
@@ -158,5 +187,78 @@ fn test_loan() {
     let y = &x;
     x += 1;
 }
+
+
+    test_lifetime();
+
+    // let mut world = World{
+    //     inspector: None,
+    //     days: Box::new(1),
+    // };
+    // world.inspector = Some(Inspector{
+    //     val: Dropable(&world.days),
+    // });
+
+    let mut foo = Foo::new();
+    foo.eval();
+
+}
+
+struct Node {
+    next: Option<RefCell<Box<Node>>>
+}
+
+
+impl Node {
+    fn print_nodes<'a> (head: &'a Node) {
+        // let mut next = Some(head);
+        // let next2;
+        // if let Some(n) = next {
+        //     match &n.next {
+        //         Some(n2) => {
+        //             next2 = n2.borrow();
+        //             next = Some(next2.as_ref());
+        //         },
+        //         _ => {
+        //         }
+        //     }
+        // }
+    }
+}
+
+fn test_lifetime() {
+    let mut p = 1;
+    let q = 2;
+    let mut x = &p;
+     x = &q;
+    p += 1;
+    println!("{}", *x);
+}
+
+enum Element {
+    UserName(String),
+    UserCountry(String),
+}
+
+fn enum_map() {
+    let e = Element::UserName(String::from("hello"));
+}
+
+struct Inspector<'a>{
+    val: Dropable<'a>,
+}
+
+struct Dropable<'a> (&'a u8);
+
+struct World<'a> {
+    inspector: Option<Inspector<'a>>,
+    days: Box<u8>,
+}
+
+impl<'a> Drop for Dropable<'a> {
+    fn drop(&mut self) {
+    }
+}
+
 
 

@@ -44,3 +44,21 @@ fn three_refs2(a: &i32, b: &i32, c: &i32, cr: &ComplexRefs) -> i32 {
     }
 }
 
+// pub fn xxxxx() {
+//     let mut s1 = String::from("hello");
+//     let s1ref = &s1;
+//     s1.push_str("xxx");
+//     println!("{}", s1);
+//     println!("{}", s1ref);
+//     println!("{}", s1);
+
+// }
+
+fn xxxxx2() {
+    let mut s1 = String::from("hello");
+    let s1ref = &s1;
+    println!("{}", s1);
+    println!("{}", s1ref);
+    s1.push_str("xxx");
+    println!("{}", s1);
+}

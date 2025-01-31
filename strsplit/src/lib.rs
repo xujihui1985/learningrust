@@ -1,6 +1,8 @@
 //!
 #![warn(missing_debug_implementations, rust_2018_idioms, missing_docs)]
 
+use std::str::pattern::Pattern;
+
 #[derive(Debug)]
 pub struct StrSplit<'a, 'b> {
     remainder: &'a str,
@@ -39,6 +41,15 @@ impl<'a,'b> Iterator for StrSplit<'a,'b> {
 fn until_char(s: &str, c: char) -> Option<&str> {
     let delimter = format!("{}", c);
     StrSplit::new(s, &delimter).next()
+}
+fn run_case(content: &String, query: &String) {
+    // query.is_contained_in("xx");
+    "xxx".is_contained_in("xx");
+    for line in content.lines() {
+        if line.contains(query) {
+            println!("{}", line);
+        }
+    }
 }
 
 #[cfg(test)]

@@ -17,7 +17,8 @@ impl<T> Stepper<T> {
 }
 
 impl<T> Iterator for Stepper<T>
-    where T: AddAssign + Copy + PartialOrd
+where
+    T: AddAssign + PartialOrd + Copy,
 {
     type Item = T;
 
@@ -32,16 +33,17 @@ impl<T> Iterator for Stepper<T>
 }
 
 fn sum_list<I, S>(l: I, mut s: S) -> S
-    where I: Iterator<Item=S>,
-          S: AddAssign,
+where
+    I: Iterator<Item = S>,
+    S: AddAssign,
 {
     let mut it = l.into_iter();
     while let Some(n) = it.next() {
         s += n;
     }
-//    for n in l {
-//        s += n;
-//    }
+    //    for n in l {
+    //        s += n;
+    //    }
     s
 }
 
@@ -62,7 +64,7 @@ mod tests {
         }
         assert_eq!(c, 20);
 
-        let sum = sum_list(Stepper::new(2, 10 ,2), 0);
+        let sum = sum_list(Stepper::new(2, 10, 2), 0);
         assert_eq!(sum, 20);
     }
 }

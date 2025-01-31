@@ -35,3 +35,16 @@ path = "./src/lifetime_hack.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+rayon = "1.7.0"
+
+[[bin]]
+path = "./src/temp.rs"
+name = "temp"
+
+[[bin]]
+path = "./src/hrtb.rs"
+name = "hrtb"
+
+[[bin]]
+path = "./src/move.rs"
+name = "move"

@@ -1,3 +1,5 @@
+use super::annotatedstring::AnnotatedString;
+use super::{Position, Size};
 use crossterm::style::Attribute;
 use crossterm::terminal::{
     disable_raw_mode, enable_raw_mode, size, Clear, ClearType, EnterAlternateScreen,
@@ -5,7 +7,8 @@ use crossterm::terminal::{
 };
 use crossterm::{queue, Command};
 use std::io::{stdout, Error as IoError, Write};
-use super::{Position, Size};
+
+mod attribute;
 
 type Result<T> = std::result::Result<T, IoError>;
 
@@ -65,6 +68,35 @@ impl Terminal {
 
     pub fn print(string: &str) -> Result<()> {
         Self::queue_command(crossterm::style::Print(string))
+    }
+
+    pub fn print_annotated_row(row: usize, annotated_string: &AnnotatedString) -> Result<()> {
+        Self::move_caret_to(Position { row, col: 0 })?;
+        Self::clear_line()?;
+        annotated_string.into_iter().try_for_each(|part| -> Result<()> {
+            if let Some(anno_type) = part.annotation_type {
+                let attr = attribute::Attribute::from(anno_type);
+                Self::set_attribute(attr)?;
+            }
+            Self::print(part.string)?;
+            Self::reset_color()?;
+            Ok(())
+        })?;
+        Ok(())
+    }
+
+    fn set_attribute(attribute: attribute::Attribute) -> Result<()> {
+        if let Some(forg_color) = attribute.foreground {
+            Self::queue_command(crossterm::style::SetForegroundColor(forg_color))?;
+        }
+        if let Some(bg_color) = attribute.background {
+            Self::queue_command(crossterm::style::SetBackgroundColor(bg_color))?;
+        }
+        Ok(())
+    }
+
+    fn reset_color() -> Result<()> {
+        Self::queue_command(crossterm::style::ResetColor)
     }
 
     pub fn print_inverted_row(row: usize, line_text: &str) -> Result<()> {

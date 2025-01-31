@@ -45,14 +45,18 @@ impl<'a> Future for IoRead<'a> {
 }
 
 // this future has a reference to buf,
+// async fn foo(s: &mut dyn AsyncRead + AsyncWrite) {
+//     let mut buf = [0; 1024];
+//     tokio::io::read(s, &mut buf[..]).await
+// }
 // suppose foo return a future FooFuture, the buf field is the buf
 // of async method foo
 // if FooFuture was moved, the buf was moved, then f field which
 // reference buf is invalid, so FooFuture can not be moved
-struct FooFuture {
-    buf: [u8; 1024],
-    f: IoRead<'same as buf>  // this future has reference to buf
-}
+// struct FooFuture {
+//     buf: [u8; 1024],
+//     f: IoRead<'same as buf>  // this future has reference to buf
+// }
 
 
 // if we think about memory, move is actually memcpy, f was memcpy to z, and buf was also cpy from f to z
@@ -74,8 +78,8 @@ struct IoRead<'a> {
     s: &mut dyn AsyncRead,
 }
 
-impl<'a> Future for IoRead<'a> {
-    type Output = io::Result<usize>;
+ impl<'a> Future for IoRead<'a> {
+     type Output = io::Result<usize>;
 
     fn poll(self: Pin<&mut Self>) -> Poll<Self::Output> {
     }

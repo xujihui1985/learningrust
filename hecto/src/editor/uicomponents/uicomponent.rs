@@ -1,4 +1,5 @@
-use super::Size;
+use crate::editor::size::Size;
+
 
 pub trait UIComponent {
 
@@ -15,11 +16,17 @@ pub trait UIComponent {
 
     fn render(&mut self, origin_row: usize) {
         if self.needs_redraw() {
-            match self.draw(origin_row) {
-                Ok(_) => self.set_needs_redraw(false),
-                Err(e) => {
-                    panic!("Failed to draw UI component: {e:?}");
+            if let Err(err) = self.draw(origin_row) {
+                #[cfg(debug_assertions)]
+                {
+                    panic!("Could not draw UI component: {err:?}");
                 }
+                #[cfg(not(debug_assertions))]
+                {
+                    let _ = err;
+                }
+            } else {
+                self.set_needs_redraw(false);
             }
         }
     }

@@ -42,6 +42,21 @@ async fn main() -> MyResult<()> {
     //Ok(())
 //}
 
+fn generate() -> Vec<i32> {
+    let bound = 10;
+    futures::executor::block_on(
+        tokio::spawn(async move {
+            let mut res = vec![];
+            for i in 0..bound {
+                res.push(i);
+                tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+            }
+            res
+        })
+    ).unwrap()
+}
+
+
 //async fn handle_connection_by_lines(mut socket: TcpStream) -> MyResult<()> {
     //let remote_ip = socket.peer_addr()?.ip();
     //println!("remote_ip is {}", remote_ip);

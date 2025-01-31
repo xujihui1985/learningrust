@@ -1,6 +1,9 @@
 use std::cmp::min;
 
-use super::{Size, command::Edit, line::Line, terminal::Terminal, uicomponent::UIComponent};
+use crate::editor::{command::Edit, line::Line, size::Size, terminal::Terminal};
+
+use super::uicomponent::UIComponent;
+
 
 #[derive(Default)]
 pub struct CommandBar {
@@ -34,6 +37,12 @@ impl CommandBar {
 
     pub fn set_prompt(&mut self, prompt: &str) {
         self.prompt = prompt.to_string();
+        self.set_needs_redraw(true);
+    }
+
+    pub fn clean_value(&mut self) {
+        self.value = Line::default();
+        self.set_needs_redraw(true);
     }
 }
 

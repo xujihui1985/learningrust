@@ -95,4 +95,19 @@ fn main() {
     let h = Hello{
         hello: "aaa"
     };
+#[tokio::main]
+async fn main() {
+    println!("should sleeping for 1 second");
+    let t = TimerFuture::new(Duration::from_millis(1000));
+    t.await;
+    hello_world().await;
+    let v = 123;
+    let l = tokio::sync::RwLock::new(v);
+
+    let g = l.read().await;
+    println!("got read lock");
+    drop(g);
+
+    let wg = l.write().await;
+    println!("got write lock");
 }
