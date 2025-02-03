@@ -4,6 +4,9 @@ use std::env;
 use std::io::Error as IoError;
 use std::panic::{set_hook, take_hook};
 mod annotatedstring;
+pub mod annotationtype;
+mod annotation;
+
 pub(crate) mod command;
 pub(crate) mod documentstatus;
 pub(crate) mod line;
@@ -15,6 +18,9 @@ use crate::editor::Command::*;
 use crate::editor::Edit::*;
 use crate::editor::System::*;
 use uicomponents::UIComponent;
+pub use annotationtype::AnnotationType;
+use annotation::Annotation;
+use annotatedstring::AnnotatedString;
 
 use position::Position;
 use size::Size;

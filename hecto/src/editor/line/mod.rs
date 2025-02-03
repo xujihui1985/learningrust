@@ -12,7 +12,10 @@ mod textfragment;
 use graphemewidth::GraphemeWidth;
 use textfragment::TextFragment;
 
-use super::annotatedstring::{AnnotatedString, AnnotationType};
+use super::{
+    annotation::Annotation,
+    AnnotatedString, AnnotationType,
+};
 
 type GraphemeIdx = usize;
 type ByteIdx = usize;
@@ -83,66 +86,84 @@ impl Line {
         }
     }
 
-    pub fn get_visible_graphemes(&self, range: Range<GraphemeIdx>) -> String {
-        if range.start >= range.end {
-            return String::new();
-        }
-        let mut result = String::new();
-        let mut current_pos = 0;
-        for fragment in &self.fragments {
-            let fragment_end = fragment.rendered_width.saturating_add(current_pos);
-            if current_pos >= range.end {
-                break;
-            }
-            if fragment_end > range.start {
-                if fragment_end > range.end || current_pos < range.start {
-                    result.push('⋯');
-                } else if let Some(char) = fragment.replacement {
-                    result.push(char);
-                } else {
-                    result.push_str(&fragment.grapheme);
-                }
-            }
-            current_pos = fragment_end;
-        }
-        result
+    pub fn get_visible_graphemes(&self, range: Range<ColIdx>) -> String {
+        self.get_annotated_visible_substr(range, None).to_string()
+        // if range.start >= range.end {
+        //     return String::new();
+        // }
+        // let mut result = String::new();
+        // let mut current_pos = 0;
+        // for fragment in &self.fragments {
+        //     let fragment_end = fragment.rendered_width.saturating_add(current_pos);
+        //     if current_pos >= range.end {
+        //         break;
+        //     }
+        //     if fragment_end > range.start {
+        //         if fragment_end > range.end || current_pos < range.start {
+        //             result.push('⋯');
+        //         } else if let Some(char) = fragment.replacement {
+        //             result.push(char);
+        //         } else {
+        //             result.push_str(&fragment.grapheme);
+        //         }
+        //     }
+        //     current_pos = fragment_end;
+        // }
+        // result
     }
 
     pub fn get_annotated_visible_substr(
         &self,
         range: Range<ColIdx>,
-        query: Option<&str>,
-        selected_match: Option<GraphemeIdx>,
+        annotations: Option<&Vec<Annotation>>,
+        // query: Option<&str>,
+        // selected_match: Option<GraphemeIdx>,
     ) -> AnnotatedString {
         if range.start >= range.end {
             return AnnotatedString::default();
         }
         // Create a new annotated string
         let mut result = AnnotatedString::from(&self.string);
-        // Annotate it based on the search results
-        if let Some(query) = query {
-            if !query.is_empty() {
-                self.find_all(query, 0..self.string.len()).iter().for_each(
-                    |(start_byte_idx, grapheme_idx)| {
-                        if let Some(selected_match) = selected_match {
-                            if *grapheme_idx == selected_match {
-                                result.add_annotation(
-                                    AnnotationType::SelectedMatch,
-                                    *start_byte_idx,
-                                    start_byte_idx.saturating_add(query.len()),
-                                );
-                                return;
-                            }
-                        }
-                        result.add_annotation(
-                            AnnotationType::Match,
-                            *start_byte_idx,
-                            start_byte_idx.saturating_add(query.len()),
-                        );
-                    },
+
+        if let Some(annotations) = annotations {
+            for annotation in annotations {
+                result.add_annotation(
+                    annotation.annotation_type,
+                    annotation.start_byte_idx,
+                    annotation.end_byte_idx,
                 );
             }
         }
+        // self.string.chars().enumerate().for_each(|(idx, ch)| {
+        //     if ch.is_ascii_digit() {
+        //         result.add_annotation(AnnotationType::Digit, idx, idx.saturating_add(1));
+        //     }
+        // });
+
+        // // Annotate it based on the search results
+        // if let Some(query) = query {
+        //     if !query.is_empty() {
+        //         self.find_all(query, 0..self.string.len()).iter().for_each(
+        //             |(start_byte_idx, grapheme_idx)| {
+        //                 if let Some(selected_match) = selected_match {
+        //                     if *grapheme_idx == selected_match {
+        //                         result.add_annotation(
+        //                             AnnotationType::SelectedMatch,
+        //                             *start_byte_idx,
+        //                             start_byte_idx.saturating_add(query.len()),
+        //                         );
+        //                         return;
+        //                     }
+        //                 }
+        //                 result.add_annotation(
+        //                     AnnotationType::Match,
+        //                     *start_byte_idx,
+        //                     start_byte_idx.saturating_add(query.len()),
+        //                 );
+        //             },
+        //         );
+        //     }
+        // }
         // Insert replacement characters, and truncate if needed.
         // We do this backwards, otherwise the byte indices would be off in case a replacement character has a different width than the original character.
         let mut fragment_start = self.width();
@@ -193,7 +214,6 @@ impl Line {
         }
         result
     }
-
 
     pub fn get_annotated_visible_substr2(
         &self,
@@ -381,7 +401,7 @@ impl Line {
             .map(|(_, graphmem_idx)| *graphmem_idx)
     }
 
-    fn find_all(&self, query: &str, range: Range<ByteIdx>) -> Vec<(ByteIdx, GraphemeIdx)> {
+    pub fn find_all(&self, query: &str, range: Range<ByteIdx>) -> Vec<(ByteIdx, GraphemeIdx)> {
         let (start_byte_idx, end_byte_idx) = (range.start, range.end);
         self.string
             .get(start_byte_idx..end_byte_idx)

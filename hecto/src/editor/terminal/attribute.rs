@@ -1,6 +1,6 @@
 use crossterm::style::Color;
 
-use crate::editor::annotatedstring::AnnotationType;
+use crate::editor::AnnotationType;
 
 
 pub struct Attribute {
@@ -35,6 +35,14 @@ impl From<AnnotationType> for Attribute {
                     b: 0,
                 }),
             },
+            AnnotationType::Digit => Self {
+                foreground: Some(Color::Rgb{
+                    r: 255,
+                    g: 99,
+                    b: 71,
+                }),
+                background: None,
+            }
         }
     }
 }

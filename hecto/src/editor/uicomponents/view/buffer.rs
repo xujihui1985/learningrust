@@ -1,15 +1,55 @@
-use super::{FileInfo, Line, Location};
+use super::highlighter::Highlighter;
+use super::{highlighter, FileInfo, Line, Location};
+use crate::editor::annotatedstring::AnnotatedString;
+use crate::prelude::*;
 use std::fs::File;
 use std::io::Write;
+use std::ops::Range;
 
 #[derive(Default)]
 pub struct Buffer {
-    pub lines: Vec<Line>,
-    pub file_info: FileInfo,
-    pub dirty: bool,
+    lines: Vec<Line>,
+    file_info: FileInfo,
+    dirty: bool,
 }
 
 impl Buffer {
+    pub const fn is_dirty(&self) -> bool {
+        self.dirty
+    }
+
+    pub const fn get_file_info(&self) -> &FileInfo {
+        &self.file_info
+    }
+
+    pub fn grapheme_count(&self, idx: LineIdx) -> GraphemeIdx {
+        self.lines.get(idx).map_or(0, Line::grapheme_count)
+    }
+
+    pub fn width_until(&self, idx: LineIdx, until: GraphemeIdx) -> GraphemeIdx {
+        self.lines
+            .get(idx)
+            .map_or(0, |line| line.width_until(until))
+    }
+
+    pub fn get_highlighted_substring(
+        &self, 
+        line_idx: LineIdx, 
+        range: Range<GraphemeIdx>,
+        highlighter: &Highlighter,
+    ) -> Option<AnnotatedString> {
+        self.lines.get(line_idx).map(|line| {
+            line.get_annotated_visible_substr(range, highlighter.get_annotations(line_idx))
+        })
+    }
+
+    pub fn highlight(&self, idx: LineIdx, highlighter: &mut Highlighter) {
+        let Some(line) = self.lines.get(idx) else {
+            return;
+        };
+        highlighter.highlight(idx, line);
+    }
+
     pub fn load(file_name: &str) -> Result<Self, std::io::Error> {
         let contents = std::fs::read_to_string(file_name)?;
         let mut lines = Vec::new();
@@ -138,7 +178,12 @@ impl Buffer {
             .enumerate()
             .rev()
             .cycle()
-            .skip(self.lines.len().saturating_sub(from.line_index).saturating_sub(1))
+            .skip(
+                self.lines
+                    .len()
+                    .saturating_sub(from.line_index)
+                    .saturating_sub(1),
+            )
             .take(self.lines.len().saturating_add(1))
         {
             let from_grapheme_idx = if is_first {
