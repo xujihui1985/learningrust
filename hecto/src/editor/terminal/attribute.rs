@@ -2,7 +2,6 @@ use crossterm::style::Color;
 
 use crate::editor::AnnotationType;
 
-
 pub struct Attribute {
     pub foreground: Option<Color>,
     pub background: Option<Color>,
@@ -36,7 +35,7 @@ impl From<AnnotationType> for Attribute {
                 }),
             },
             AnnotationType::Number => Self {
-                foreground: Some(Color::Rgb{
+                foreground: Some(Color::Rgb {
                     r: 255,
                     g: 99,
                     b: 71,
@@ -44,7 +43,7 @@ impl From<AnnotationType> for Attribute {
                 background: None,
             },
             AnnotationType::Keyword => Self {
-                foreground: Some(Color::Rgb{
+                foreground: Some(Color::Rgb {
                     r: 100,
                     g: 149,
                     b: 237,
@@ -52,7 +51,7 @@ impl From<AnnotationType> for Attribute {
                 background: None,
             },
             AnnotationType::Type => Self {
-                foreground: Some(Color::Rgb{
+                foreground: Some(Color::Rgb {
                     r: 175,
                     g: 225,
                     b: 175,
@@ -60,7 +59,7 @@ impl From<AnnotationType> for Attribute {
                 background: None,
             },
             AnnotationType::KnownValue => Self {
-                foreground: Some(Color::Rgb{
+                foreground: Some(Color::Rgb {
                     r: 195,
                     g: 177,
                     b: 225,
@@ -68,7 +67,7 @@ impl From<AnnotationType> for Attribute {
                 background: None,
             },
             AnnotationType::Char => Self {
-                foreground: Some(Color::Rgb{
+                foreground: Some(Color::Rgb {
                     r: 255,
                     g: 191,
                     b: 0,
@@ -76,7 +75,7 @@ impl From<AnnotationType> for Attribute {
                 background: None,
             },
             AnnotationType::LifetimeSpecifier => Self {
-                foreground: Some(Color::Rgb{
+                foreground: Some(Color::Rgb {
                     r: 102,
                     g: 205,
                     b: 170,
@@ -84,10 +83,18 @@ impl From<AnnotationType> for Attribute {
                 background: None,
             },
             AnnotationType::Comment => Self {
-                foreground: Some(Color::Rgb{
+                foreground: Some(Color::Rgb {
                     r: 34,
                     g: 139,
                     b: 34,
+                }),
+                background: None,
+            },
+            AnnotationType::String => Self {
+                foreground: Some(Color::Rgb {
+                    r: 255,
+                    g: 179,
+                    b: 102,
                 }),
                 background: None,
             },
