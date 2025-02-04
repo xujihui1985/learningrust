@@ -1,9 +1,13 @@
+use super::FileType;
+
+
 #[derive(Default, Eq, PartialEq, Debug)]
 pub struct DocumentStatus {
     pub total_lines: usize,
     pub current_line_index: usize,
     pub is_modified: bool,
     pub file_name: String,
+    pub file_type: FileType,
 }
 
 impl DocumentStatus {
@@ -25,5 +29,9 @@ impl DocumentStatus {
             self.current_line_index.saturating_add(1),
             self.total_lines
         )
+    }
+
+    pub fn file_type_to_string(&self) -> String {
+        self.file_type.to_string()
     }
 }

@@ -37,10 +37,12 @@ pub struct View {
 
 impl View {
     pub fn get_status(&self) -> DocumentStatus {
+        let file_info = self.buffer.get_file_info();
         DocumentStatus {
             total_lines: self.buffer.height(),
             current_line_index: self.text_location.line_index,
             is_modified: self.buffer.is_dirty(),
+            file_type: file_info.get_file_type(),
             file_name: format!("{}", self.buffer.get_file_info()),
         }
     }
@@ -54,7 +56,9 @@ impl View {
     }
 
     pub fn save_as(&mut self, file_name: &str) -> Result<(), std::io::Error> {
-        self.buffer.save_as(file_name)
+        self.buffer.save_as(file_name)?;
+        self.set_needs_redraw(true);
+        Ok(())
     }
 
     pub fn handle_edit_command(&mut self, command: Edit) {
@@ -82,7 +86,9 @@ impl View {
     }
 
     pub fn save(&mut self) -> Result<(), std::io::Error> {
-        self.buffer.save()
+        self.buffer.save()?;
+        self.set_needs_redraw(true);
+        Ok(())
     }
 
     fn backspace(&mut self) {
@@ -353,13 +359,17 @@ impl UIComponent for View {
 
         let query = self.search_info.as_ref().and_then(|si| si.query.as_deref());
         let selected_match = query.is_some().then_some(self.text_location);
-        let mut highlighter = Highlighter::new(query, selected_match);
+        let mut highlighter = Highlighter::new(
+            query, 
+            selected_match,
+            self.buffer.get_file_info().get_file_type(),
+        );
 
         for current_row in 0..end_y {
             self.buffer.highlight(current_row, &mut highlighter);
         }
 
-        for current_row in origin_row..end_y {
+        for current_row in origin_row..end_y.saturating_add(scroll_top) {
             let line_idx = current_row
                 .saturating_sub(origin_row)
                 .saturating_add(scroll_top);

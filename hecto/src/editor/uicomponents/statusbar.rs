@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 use crate::editor::{documentstatus::DocumentStatus, size::Size, terminal::Terminal};
 
 use super::uicomponent::UIComponent;
@@ -40,8 +42,10 @@ impl UIComponent for StatusBar {
         );
 
         let position_indicator = self.current_status.position_indicator_to_string();
+        let file_type = self.current_status.file_type_to_string();
+        let back_part = format!("{file_type} | {position_indicator}");
         let remainder_len = self.size.width.saturating_sub(beginning.len());
-        let status = format!("{beginning}{position_indicator:>remainder_len$}");
+        let status = format!("{beginning}{back_part:>remainder_len$}");
         let to_print = if status.len() <= self.size.width {
             Some(status)
         } else {

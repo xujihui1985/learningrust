@@ -6,6 +6,7 @@ use std::panic::{set_hook, take_hook};
 mod annotatedstring;
 pub mod annotationtype;
 mod annotation;
+mod filetype;
 
 pub(crate) mod command;
 pub(crate) mod documentstatus;
@@ -21,6 +22,7 @@ use uicomponents::UIComponent;
 pub use annotationtype::AnnotationType;
 use annotation::Annotation;
 use annotatedstring::AnnotatedString;
+use filetype::FileType;
 
 use position::Position;
 use size::Size;
