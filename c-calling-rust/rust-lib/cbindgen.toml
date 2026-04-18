@@ -1,0 +1,7 @@
+language = "C"
+include_guard = "RUST_LIB_H"
+pragma_once = true
+usize_is_size_t = true
+
+[parse]
+parse_deps = false
