@@ -23,9 +23,7 @@ fn main() {
         .expect("generate C header")
         .write_to_file(header_path);
 
-    println!("cargo:rerun-if-changed=src/lib.rs");
-    println!("cargo:rerun-if-changed=src/calculator.rs");
-    println!("cargo:rerun-if-changed=src/ffi.rs");
+    println!("cargo:rerun-if-changed=src");
     println!("cargo:rerun-if-changed=cbindgen.toml");
 }
 

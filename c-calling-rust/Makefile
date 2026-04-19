@@ -11,7 +11,7 @@ RUST_LIB := $(RUST_TARGET_DIR)/librust_lib.a
 RUST_HEADER := $(RUST_TARGET_DIR)/include/rust_lib.h
 C_BIN := $(RUST_TARGET_DIR)/c-calling-rust
 
-.PHONY: all run clean FORCE
+.PHONY: all run clean rustlib
 
 all: $(C_BIN)
 
